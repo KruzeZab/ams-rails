@@ -1,8 +1,11 @@
 class User < ApplicationRecord
   has_secure_password
 
-  validates :gender, presence: true, inclusion: { in: %w[m f o], message: "invalid" }
-  validates :role, presence: true, inclusion: { in: %w[super_admin artist_manager artist], message: "invalid" }
+  ROLES = { super_admin: 'super_admin', artist_manager: 'artist_manager', artist: 'artist' }.freeze
+  GENDERS = { MALE: 'm', FEMALE: 'f', OTHERS: 'o' }.freeze
+
+  validates :role, presence: true, inclusion: { in: ROLES.values, message: "invalid" }
+  validates :gender, presence: true, inclusion: { in: GENDERS.values, message: "invalid" }
   validates :password, length: { minimum: 6 }, allow_nil: true
   validates :first_name, :last_name, :dob, :address, presence: true
   validates :email, presence: true,

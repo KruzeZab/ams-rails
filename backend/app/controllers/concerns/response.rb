@@ -1,17 +1,17 @@
 module Response
-  def render_success(message:, data: {}, status: :ok)
-    render json: {
-      success: true,
-      message: message,
-      data: data
-    }, status: status
+  def render_success(message: nil, data: {}, status: :ok)
+    response = { success: true }
+    response[:message] = message if message.present?
+    response[:data] = data if data.present?
+
+    render json: response, status: status
   end
 
-  def render_error(message:, errors: [], status: :unprocessable_entity)
-    render json: {
-      success: false,
-      message: message,
-      errors: errors
-    }, status: status
+  def render_error(message: nil, errors: [], status: :unprocessable_entity)
+    response = { success: false }
+    response[:message] = message if message.present?
+    response[:errors] = errors if errors.any?
+
+    render json: response, status: status
   end
 end
