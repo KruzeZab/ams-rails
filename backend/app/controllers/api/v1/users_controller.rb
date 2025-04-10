@@ -1,5 +1,6 @@
 class Api::V1::UsersController < ApplicationController
   skip_before_action :authorize_request, only: [:create]
+  before_action :set_user, only: [:show, :update, :destroy]
   
   def create
     user = User.new(user_params)
@@ -10,7 +11,35 @@ class Api::V1::UsersController < ApplicationController
     end
   end
 
+  def index
+    users = User.all
+    render_success(message: "Users fetched successfully", data: users)
+  end
+
+  def show
+    render_success(message: "User details fetched", data: @user)
+  end
+
+  def update
+    if @user.update(user_params)
+      render_success(message: "User updated successfully", data: @user)
+    else
+      render_error(message: "User update failed", errors: @user.errors.full_messages)
+    end
+  end
+
+  def destroy
+    @user.destroy
+    render_success(message: "User deleted successfully", data: {id: @user.id})
+  end
+
+
   private
+
+  def set_user
+    @user = User.find_by(id: params[:id])
+    render_error(message: "User not found", status: :not_found) unless @user
+  end
 
   def user_params
     params.permit(
