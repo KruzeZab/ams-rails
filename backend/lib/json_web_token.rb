@@ -10,7 +10,7 @@ class JsonWebToken
   def self.decode(token)
     body = JWT.decode(token,  ENV["AMS_ACCESS_SECRET_KEY"])[0]
     HashWithIndifferentAccess.new body
-  rescue JWT::DecodeError => e
-    raise StandardError.new("Invalid token: #{e.message}")
+  rescue JWT::DecodeError
+    raise StandardError.new("Invalid token.")
   end
 end
