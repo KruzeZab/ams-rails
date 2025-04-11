@@ -1,15 +1,27 @@
 class Api::V1::UsersController < ApplicationController
   before_action :set_user, only: [:show, :update, :destroy]
+  before_action :allow_only_artist_manager, only: [:create]
+  skip_before_action :authorize_request, only: [:create_super_admin]
   
   def create
-    if params[:role] == User::ROLES[:super_admin]
-      return render_error(message: "You cannot create a super_admin user.", status: :forbidden)
-    end
-
-    user = User.new(user_params)
+    user = User.new(user_params.merge(role: User::ROLES[:artist_manager]))
 
     if user.save
       render_success(message: "User created successfully", data: user, status: :created)
+    else
+      render_error(message: "User creation failed", errors: user.errors.full_messages)
+    end
+  end
+
+  def create_super_admin
+    if User.where(role: User::ROLES[:super_admin]).exists?
+      return render_error(message: 'Super admin already exists.', status: :forbidden )
+    end
+
+    user = User.new(user_params.merge(role: User::ROLES[:super_admin]))
+
+    if user.save
+      render_success(message: 'User created successfully', data: user, status: :created)
     else
       render_error(message: "User creation failed", errors: user.errors.full_messages)
     end
@@ -40,6 +52,12 @@ class Api::V1::UsersController < ApplicationController
 
   private
 
+  def allow_only_artist_manager
+    if params[:role].to_s != User::ROLES[:artist_manager]
+      return render_error(message: "Cannot perform the action", status: :forbidden)
+    end
+  end
+
   def set_user
     @user = User.find_by(id: params[:id])
     render_error(message: "User not found", status: :not_found) unless @user
@@ -48,7 +66,7 @@ class Api::V1::UsersController < ApplicationController
   def user_params
     params.permit(
       :first_name, :last_name, :email, :phone, :password, :dob,
-      :gender, :address, :role
+      :gender, :address
     )
   end
 end

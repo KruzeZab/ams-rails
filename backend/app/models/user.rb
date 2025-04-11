@@ -14,5 +14,5 @@ class User < ApplicationRecord
   validates :phone, presence: true,
                     format: { with: /\A\d{10,}\z/, message: "must be a valid number with at least 10 digits" }
 
-  has_one :artist
+  has_one :artist, dependent: :destroy
 end

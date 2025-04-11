@@ -1,6 +1,6 @@
 require "test_helper"
 
-class Api::V1::RegistrationsControllerTest < ActionDispatch::IntegrationTest
+class ArtistTest < ActiveSupport::TestCase
   # test "the truth" do
   #   assert true
   # end
