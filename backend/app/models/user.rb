@@ -1,7 +1,9 @@
 class User < ApplicationRecord
   has_secure_password
 
-  ROLES = { super_admin: 'super_admin', artist_manager: 'artist_manager', artist: 'artist' }.freeze
+  has_one :artist, dependent: :destroy
+
+  ROLES = { SUPER_ADMIN: 'super_admin', ARTIST_MANAGER: 'artist_manager', ARTIST: 'artist' }.freeze
   GENDERS = { MALE: 'm', FEMALE: 'f', OTHERS: 'o' }.freeze
 
   validates :role, presence: true, inclusion: { in: ROLES.values, message: "invalid" }
@@ -13,6 +15,4 @@ class User < ApplicationRecord
                   format: { with: URI::MailTo::EMAIL_REGEXP, message: "is not a valid email" }
   validates :phone, presence: true,
                     format: { with: /\A\d{10,}\z/, message: "must be a valid number with at least 10 digits" }
-
-  has_one :artist, dependent: :destroy
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_04_11_033147) do
+ActiveRecord::Schema[8.0].define(version: 2025_04_11_045155) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -21,6 +21,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_11_033147) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_artists_on_user_id"
+  end
+
+  create_table "musics", force: :cascade do |t|
+    t.string "title"
+    t.string "genre"
+    t.string "album_name"
+    t.bigint "artist_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["artist_id"], name: "index_musics_on_artist_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -39,4 +49,5 @@ ActiveRecord::Schema[8.0].define(version: 2025_04_11_033147) do
   end
 
   add_foreign_key "artists", "users"
+  add_foreign_key "musics", "artists"
 end

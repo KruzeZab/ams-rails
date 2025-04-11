@@ -1,5 +1,6 @@
 class Artist < ApplicationRecord
   belongs_to :user
+  has_many :musics, dependent: :destroy
 
   validates :number_of_albums_released, presence: true,
                                         numericality: { only_integer: true, greater_than_or_equal_to: 0 }

@@ -4,7 +4,7 @@ class Api::V1::UsersController < ApplicationController
   skip_before_action :authorize_request, only: [:create_super_admin]
   
   def create
-    user = User.new(user_params.merge(role: User::ROLES[:artist_manager]))
+    user = User.new(user_params.merge(role: User::ROLES[:ARTIST_MANAGER]))
 
     if user.save
       render_success(message: "User created successfully", data: user, status: :created)
@@ -14,11 +14,11 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def create_super_admin
-    if User.where(role: User::ROLES[:super_admin]).exists?
+    if User.where(role: User::ROLES[:SUPER_ADMIN]).exists?
       return render_error(message: 'Super admin already exists.', status: :forbidden )
     end
 
-    user = User.new(user_params.merge(role: User::ROLES[:super_admin]))
+    user = User.new(user_params.merge(role: User::ROLES[:SUPER_ADMIN]))
 
     if user.save
       render_success(message: 'User created successfully', data: user, status: :created)
@@ -53,7 +53,7 @@ class Api::V1::UsersController < ApplicationController
   private
 
   def allow_only_artist_manager
-    if params[:role].to_s != User::ROLES[:artist_manager]
+    if params[:role].to_s != User::ROLES[:ARTIST_MANAGER]
       return render_error(message: "Cannot perform the action", status: :forbidden)
     end
   end

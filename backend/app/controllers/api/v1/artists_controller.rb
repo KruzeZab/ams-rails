@@ -3,7 +3,7 @@ class Api::V1::ArtistsController < ApplicationController
 
   def create
     ActiveRecord::Base.transaction do
-      user = User.create!(user_params.merge(role: User::ROLES[:artist]))
+      user = User.create!(user_params.merge(role: User::ROLES[:ARTIST]))
       artist = Artist.create!(artist_params.merge(user: user))
 
       render_success(message: "Artist created successfully", data: artist, status: :created)
