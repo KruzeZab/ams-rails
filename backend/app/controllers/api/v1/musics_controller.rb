@@ -3,20 +3,19 @@ class Api::V1::MusicsController < ApplicationController
 
   def index
     musics = if params[:artist_id]
-               Music.where(artist_id: params[:artist_id])
-             else
-               Music.all
-             end
-
-    render_success(message: "Musics fetched successfully", data: musics)
-  end
+          Music.where(artist_id: params[:artist_id])
+    else
+      Music.all
+    end.order(created_at: :desc)
+  
+    paginated_response(musics, message: "Musics fetched successfully")
+  end  
 
   def show
     render_success(message: "Music details fetched", data: @music)
   end
 
   def create
-    puts params[:artist_id].to_s + "==========================================================="
     artist = Artist.find_by(id: params[:artist_id])
 
     unless artist

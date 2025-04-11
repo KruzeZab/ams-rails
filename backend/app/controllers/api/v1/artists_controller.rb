@@ -14,25 +14,17 @@ class Api::V1::ArtistsController < ApplicationController
   end
 
   def index
-    artists = Artist.includes(:user).all
-  
-    artist_data = artists.map do |artist|
-      artist.attributes.merge(artist.user.slice(
-        :id, :first_name, :last_name, :email, :phone, :gender, :dob, :address, :role
-      ))
-    end
-  
-    render_success(message: "Artists fetched successfully", data: artist_data)
+    artists = Artist.includes(:user).order(created_at: :desc)
+    
+    paginated_response(artists, message: "Artists fetched successfully")
   end
   
-
   def show
     user_data = @artist.user.slice(:id, :first_name, :last_name, :email, :phone, :gender, :dob, :address)
     artist_data = @artist.attributes.merge(user_data)
   
     render_success(message: "Artist details fetched", data: artist_data)
   end
-  
 
   def update
     user = User.find_by(id: params[:id])
@@ -50,7 +42,6 @@ class Api::V1::ArtistsController < ApplicationController
       render_error(message: "Update failed", errors: e.record.errors.full_messages)
     end
   end
-  
 
   private
 

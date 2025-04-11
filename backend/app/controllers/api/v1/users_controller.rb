@@ -28,8 +28,9 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def index
-    users = User.all
-    render_success(message: "Users fetched successfully", data: users)
+    users = User.order(created_at: :desc)
+
+    paginated_response(users, message: "Users fetched successfully")
   end
 
   def show
@@ -48,7 +49,6 @@ class Api::V1::UsersController < ApplicationController
     @user.destroy
     render_success(message: "User deleted successfully", data: {id: @user.id})
   end
-
 
   private
 
