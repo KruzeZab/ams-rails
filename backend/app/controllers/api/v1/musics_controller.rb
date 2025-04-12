@@ -8,11 +8,14 @@ class Api::V1::MusicsController < ApplicationController
       Music.all
     end.order(created_at: :desc)
   
-    paginated_response(musics, message: "Musics fetched successfully")
-  end  
+    paginated_response(musics, serializer: MusicSerializer, message: "Musics fetched successfully")
+  end
 
   def show
-    render_success(message: "Music details fetched", data: @music)
+    render_success(
+      message: "Music details fetched",
+      data: MusicSerializer.new(@music)
+    )
   end
 
   def create
@@ -25,7 +28,7 @@ class Api::V1::MusicsController < ApplicationController
     music = artist.musics.new(music_params)
 
     if music.save
-      render_success(message: "Music created successfully", data: music, status: :created)
+      render_success(message: "Music created successfully", data: MusicSerializer.new(music), status: :created)
     else
       render_error(message: "Music creation failed", errors: music.errors.full_messages)
     end
@@ -33,7 +36,7 @@ class Api::V1::MusicsController < ApplicationController
 
   def update
     if @music.update(music_params)
-      render_success(message: "Music updated successfully", data: @music)
+      render_success(message: "Music updated successfully", data: MusicSerializer.new(@music))
     else
       render_error(message: "Music update failed", errors: @music.errors.full_messages)
     end

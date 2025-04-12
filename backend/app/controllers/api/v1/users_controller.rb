@@ -7,7 +7,7 @@ class Api::V1::UsersController < ApplicationController
     user = User.new(user_params.merge(role: User::ROLES[:ARTIST_MANAGER]))
 
     if user.save
-      render_success(message: "User created successfully", data: user, status: :created)
+      render_success(message: "User created successfully", data: UserSerializer.new(user), status: :created)
     else
       render_error(message: "User creation failed", errors: user.errors.full_messages)
     end
@@ -21,7 +21,7 @@ class Api::V1::UsersController < ApplicationController
     user = User.new(user_params.merge(role: User::ROLES[:SUPER_ADMIN]))
 
     if user.save
-      render_success(message: 'User created successfully', data: user, status: :created)
+      render_success(message: 'User created successfully', data: UserSerializer.new(user), status: :created)
     else
       render_error(message: "User creation failed", errors: user.errors.full_messages)
     end
@@ -30,16 +30,20 @@ class Api::V1::UsersController < ApplicationController
   def index
     users = User.order(created_at: :desc)
 
-    paginated_response(users, message: "Users fetched successfully")
+    paginated_response(users, serializer: UserSerializer, message: "Users fetched successfully")
   end
+  
 
   def show
-    render_success(message: "User details fetched", data: @user)
+    render_success(
+      message: "User details fetched",
+      data: UserSerializer.new(@user)
+    )
   end
 
   def update
     if @user.update(user_params)
-      render_success(message: "User updated successfully", data: @user)
+      render_success(message: "User updated successfully", data: UserSerializer.new(@user))
     else
       render_error(message: "User update failed", errors: @user.errors.full_messages)
     end

@@ -14,7 +14,7 @@ class Api::V1::SessionsController < ApplicationController
       
       token = JsonWebToken.encode(payload)
 
-      render_success(message: "Login successful", data: { token: token, user: user })
+      render_success(message: "Login successful", data: { token: token, user: UserSerializer.new(user) })
     else
       render_error(message: "Invalid email or password")
     end

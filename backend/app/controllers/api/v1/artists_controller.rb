@@ -6,7 +6,7 @@ class Api::V1::ArtistsController < ApplicationController
       user = User.create!(user_params.merge(role: User::ROLES[:ARTIST]))
       artist = Artist.create!(artist_params.merge(user: user))
 
-      render_success(message: "Artist created successfully", data: artist, status: :created)
+      render_success(message: "Artist created successfully", data: ArtistSerializer.new(artist), status: :created)
 
     rescue ActiveRecord::RecordInvalid => e
       render_error(message: "Artist creation failed", errors: [e.record.errors.full_messages])
@@ -16,14 +16,11 @@ class Api::V1::ArtistsController < ApplicationController
   def index
     artists = Artist.includes(:user).order(created_at: :desc)
     
-    paginated_response(artists, message: "Artists fetched successfully")
-  end
+    paginated_response(artists, message: "Artists fetched successfully", serializer: ArtistSerializer)
+  end  
   
   def show
-    user_data = @artist.user.slice(:id, :first_name, :last_name, :email, :phone, :gender, :dob, :address)
-    artist_data = @artist.attributes.merge(user_data)
-  
-    render_success(message: "Artist details fetched", data: artist_data)
+    render_success(message: "Artist details fetched", data: ArtistSerializer.new(@artist))
   end
 
   def update
@@ -37,7 +34,7 @@ class Api::V1::ArtistsController < ApplicationController
       user.update!(user_params)
       artist.update!(artist_params)
   
-      render_success(message: "Artist updated successfully", data: artist)
+      render_success(message: "Artist updated successfully", data: ArtistSerializer.new(artist))
     rescue ActiveRecord::RecordInvalid => e
       render_error(message: "Update failed", errors: e.record.errors.full_messages)
     end

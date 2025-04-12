@@ -22,12 +22,14 @@ class ApplicationController < ActionController::API
     end
   end
 
-  def paginated_response(collection, message: "Data fetched successfully")
+  def paginated_response(collection, message: "Data fetched successfully", serializer: nil)
     pagy_data, records = pagy(collection)
+
+    data = serializer ? ActiveModelSerializers::SerializableResource.new(records, each_serializer: serializer) : records
 
     render_success(
       message: message,
-      data: records,
+      data: data,
       meta: {
         current_page: pagy_data.page,
         total_pages: pagy_data.pages,
