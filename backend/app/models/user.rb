@@ -15,4 +15,16 @@ class User < ApplicationRecord
                   format: { with: URI::MailTo::EMAIL_REGEXP, message: "is not a valid email" }
   validates :phone, presence: true,
                     format: { with: /\A\d{10,}\z/, message: "must be a valid number with at least 10 digits" }
+
+  def super_admin?
+    role == ROLES[:SUPER_ADMIN]
+  end
+
+  def artist_manager?
+    role == ROLES[:ARTIST_MANAGER]
+  end
+
+  def artist?
+    role === ROLES[:ARTIST]
+  end
 end

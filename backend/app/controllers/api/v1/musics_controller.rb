@@ -21,11 +21,10 @@ class Api::V1::MusicsController < ApplicationController
   def create
     artist = Artist.find_by(id: params[:artist_id])
 
-    unless artist
-      return render_error(message: "Artist not found", status: :not_found)
-    end
+    return render_error(message: "Artist not found", status: :not_found) unless artist
 
     music = artist.musics.new(music_params)
+    authorize music
 
     if music.save
       render_success(message: "Music created successfully", data: MusicSerializer.new(music), status: :created)
@@ -55,6 +54,6 @@ class Api::V1::MusicsController < ApplicationController
   end
 
   def music_params
-    params.permit(:title, :genre, :album_name)
+    params.permit(:title, :genre, :album_name, :artist_id)
   end
 end

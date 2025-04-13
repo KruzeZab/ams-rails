@@ -4,6 +4,7 @@ class Api::V1::UsersController < ApplicationController
   skip_before_action :authorize_request, only: [:create_super_admin]
   
   def create
+    authorize User
     user = User.new(user_params.merge(role: User::ROLES[:ARTIST_MANAGER]))
 
     if user.save
@@ -28,13 +29,15 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def index
-    users = User.order(created_at: :desc)
+    authorize User
+  
+    users = policy_scope(User).order(created_at: :desc)
 
     paginated_response(users, serializer: UserSerializer, message: "Users fetched successfully")
   end
-  
 
   def show
+    authorize @user
     render_success(
       message: "User details fetched",
       data: UserSerializer.new(@user)
@@ -42,6 +45,7 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def update
+    authorize @user
     if @user.update(user_params)
       render_success(message: "User updated successfully", data: UserSerializer.new(@user))
     else
@@ -50,6 +54,7 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def destroy
+    authorize @user
     @user.destroy
     render_success(message: "User deleted successfully", data: {id: @user.id})
   end
