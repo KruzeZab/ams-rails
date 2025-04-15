@@ -35,3 +35,14 @@ export async function signup(body = {}) {
 
   return data;
 }
+
+/**
+ *
+ */
+export async function fetchUsers(params = {}) {
+  const usersUrl = buildUrl(config.endpoints.users);
+
+  const response = await server.get(usersUrl, { params });
+
+  return response;
+}

@@ -1,3 +1,5 @@
+import { Gender, Role } from '@/interface/user';
+
 /**
  * Build the url from given parameters
  *
@@ -5,7 +7,7 @@
 export function buildUrl(
   baseUrl: string,
   ...args: (string | Record<string, string>)[]
-): string {
+) {
   let url = baseUrl.replace(/\/$/, '');
 
   const paths: string[] = [];
@@ -43,7 +45,7 @@ export function buildUrl(
 export function interpolate(
   url: string,
   params: Record<string, string | number>,
-): string {
+) {
   return url.replace(/:(\w+)/g, (_, key) => {
     if (key in params) {
       return encodeURIComponent(params[key]);
@@ -51,4 +53,40 @@ export function interpolate(
 
     throw new Error(`Missing parameter: ${key}`);
   });
+}
+
+/**
+ * Map Gender to their values
+ *
+ */
+export function mapGenderToValue(gender: Gender) {
+  const genderMap = {
+    [Gender.MALE]: 'Male',
+    [Gender.FEMALE]: 'Female',
+    [Gender.OTHERS]: 'Others',
+  };
+
+  return genderMap[gender];
+}
+
+/**
+ * Map Role to their values
+ *
+ */
+export function mapRoleToValue(role: Role) {
+  const roleMap = {
+    [Role.SUPER_ADMIN]: 'Super Admin',
+    [Role.ARTIST_MANAGER]: 'Artist Manager',
+    [Role.ARTIST]: 'Artist',
+  };
+
+  return roleMap[role];
+}
+
+/**
+ * Get full name of user
+ *
+ */
+export function getFullName(firstName: string, lastName: string) {
+  return firstName + lastName;
 }
