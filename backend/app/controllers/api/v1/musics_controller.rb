@@ -3,10 +3,10 @@ class Api::V1::MusicsController < ApplicationController
 
   def index
     musics = if params[:artist_id]
-          Music.where(artist_id: params[:artist_id])
-    else
-      Music.all
-    end.order(created_at: :desc)
+               Music.includes(:artist).where(artist_id: params[:artist_id])
+             else
+               Music.includes(:artist).all
+             end.order(created_at: :desc)
   
     paginated_response(musics, serializer: MusicSerializer, message: "Musics fetched successfully")
   end
@@ -49,7 +49,7 @@ class Api::V1::MusicsController < ApplicationController
   private
 
   def set_music
-    @music = Music.find_by(id: params[:id])
+    @music = Music.includes(:artist).find_by(id: params[:id])
     render_error(message: "Music not found", status: :not_found) unless @music
   end
 

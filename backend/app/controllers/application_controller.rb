@@ -2,6 +2,8 @@ class ApplicationController < ActionController::API
   include Response
   include Pagy::Backend
   include Pundit::Authorization
+
+  rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
   
   before_action :authorize_request
 
@@ -36,6 +38,14 @@ class ApplicationController < ActionController::API
         total_pages: pagy_data.pages,
         total_count: pagy_data.count
       }
+    )
+  end
+
+  def user_not_authorized(exception)
+    render_error(
+      message: "You're not authorized.",
+      errors: [exception.policy.class.to_s.underscore + "." + exception.query],
+      status: :forbidden
     )
   end
 end

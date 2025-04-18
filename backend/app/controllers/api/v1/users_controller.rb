@@ -1,24 +1,32 @@
 class Api::V1::UsersController < ApplicationController
   before_action :set_user, only: [:show, :update, :destroy]
-  before_action :allow_only_artist_manager, only: [:create]
   skip_before_action :authorize_request, only: [:create_super_admin]
   
   def create
-    authorize User
-    user = User.new(user_params.merge(role: User::ROLES[:ARTIST_MANAGER]))
-
-    if user.save
-      render_success(message: "User created successfully", data: UserSerializer.new(user), status: :created)
-    else
+    user = User.new(user_params)
+    authorize user
+  
+    ActiveRecord::Base.transaction do
+      if user.role == User::ROLES[:ARTIST]
+        user.build_artist(artist_params)
+  
+        unless user.artist.valid?
+          user.errors.merge!(user.artist.errors)
+          raise ActiveRecord::Rollback
+        end
+      end
+  
+      if user.save
+        render_success(message: "User created successfully", data: UserSerializer.new(user), status: :created)
+      else
+        raise ActiveRecord::Rollback
+      end
+    rescue
       render_error(message: "User creation failed", errors: user.errors.full_messages)
     end
   end
 
   def create_super_admin
-    if User.where(role: User::ROLES[:SUPER_ADMIN]).exists?
-      return render_error(message: 'Super admin already exists.', status: :forbidden )
-    end
-
     user = User.new(user_params.merge(role: User::ROLES[:SUPER_ADMIN]))
 
     if user.save
@@ -61,12 +69,6 @@ class Api::V1::UsersController < ApplicationController
 
   private
 
-  def allow_only_artist_manager
-    if params[:role].to_s != User::ROLES[:ARTIST_MANAGER]
-      return render_error(message: "Cannot perform the action", status: :forbidden)
-    end
-  end
-
   def set_user
     @user = User.find_by(id: params[:id])
     render_error(message: "User not found", status: :not_found) unless @user
@@ -75,7 +77,12 @@ class Api::V1::UsersController < ApplicationController
   def user_params
     params.permit(
       :first_name, :last_name, :email, :phone, :password, :dob,
-      :gender, :address
+      :gender, :address, :role
     )
+  end
+
+  def artist_params
+    return {} unless params[:artist].present?
+    params.require(:artist).permit(:number_of_albums_released, :first_release_year)
   end
 end

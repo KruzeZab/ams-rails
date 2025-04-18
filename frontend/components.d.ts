@@ -8,13 +8,22 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AddSongModal: typeof import('./src/components/modal/AddSongModal.vue')['default']
+    AddUserModal: typeof import('./src/components/modal/AddUserModal.vue')['default']
     Button: typeof import('primevue/button')['default']
     Card: typeof import('primevue/card')['default']
     Column: typeof import('primevue/column')['default']
     DataTable: typeof import('primevue/datatable')['default']
+    DeleteSongModal: typeof import('./src/components/modal/DeleteSongModal.vue')['default']
+    DeleteUserModal: typeof import('./src/components/modal/DeleteUserModal.vue')['default']
+    Dialog: typeof import('primevue/dialog')['default']
     Divider: typeof import('primevue/divider')['default']
     Dropdown: typeof import('primevue/dropdown')['default']
+    EditSongModal: typeof import('./src/components/modal/EditSongModal.vue')['default']
+    EditUserModal: typeof import('./src/components/modal/EditUserModal.vue')['default']
+    Footer: typeof import('./src/components/footer/Footer.vue')['default']
     Form: typeof import('@primevue/forms/form')['default']
+    FormField: typeof import('@primevue/forms/formfield')['default']
     Header: typeof import('./src/components/header/Header.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     IconCommunity: typeof import('./src/components/icons/IconCommunity.vue')['default']
@@ -27,11 +36,15 @@ declare module 'vue' {
     Menubar: typeof import('primevue/menubar')['default']
     Message: typeof import('primevue/message')['default']
     Password: typeof import('primevue/password')['default']
+    ProgressSpinner: typeof import('primevue/progressspinner')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Select: typeof import('primevue/select')['default']
+    SignupForm: typeof import('./src/components/form/SignupForm.vue')['default']
+    SongForm: typeof import('./src/components/form/SongForm.vue')['default']
     TheWelcome: typeof import('./src/components/TheWelcome.vue')['default']
     Toast: typeof import('primevue/toast')['default']
+    UserForm: typeof import('./src/components/form/UserForm.vue')['default']
     WelcomeItem: typeof import('./src/components/WelcomeItem.vue')['default']
   }
   export interface ComponentCustomProperties {

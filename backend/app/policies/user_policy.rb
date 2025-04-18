@@ -12,7 +12,9 @@ class UserPolicy < ApplicationPolicy
   end
 
   def create?
-    user.super_admin?
+    return true if user.super_admin?
+    
+    user.artist_manager? && record.artist?
   end
 
   def index?

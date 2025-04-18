@@ -9,7 +9,8 @@ class Api::V1::SessionsController < ApplicationController
         user_id: user.id,
         role: user.role,
         email: user.email,
-        full_name: "#{user.first_name} #{user.last_name}"
+        full_name: "#{user.first_name} #{user.last_name}",
+        artist_id: user.artist&.id,
       }
       
       token = JsonWebToken.encode(payload)

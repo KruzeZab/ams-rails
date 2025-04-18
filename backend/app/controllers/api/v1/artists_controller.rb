@@ -2,7 +2,7 @@ class Api::V1::ArtistsController < ApplicationController
   before_action :set_artist, only: [:show]
 
   def create
-    authorize artist
+    authorize Artist
     artist = nil
   
     ActiveRecord::Base.transaction do
@@ -17,7 +17,7 @@ class Api::V1::ArtistsController < ApplicationController
   end  
 
   def index
-    authorize artist
+    authorize Artist
     artists = Artist.includes(:user).order(created_at: :desc)
     
     paginated_response(artists, message: "Artists fetched successfully", serializer: ArtistSerializer)
@@ -48,11 +48,8 @@ class Api::V1::ArtistsController < ApplicationController
   private
 
   def set_artist
-    user = User.find_by(id: params[:id])
-    render_error(message: "User not found", status: :not_found) and return unless user
-  
-    @artist = user.artist
-    render_error(message: "Artist not found", status: :not_found) unless @artist
+    @artist = Artist.find_by(id: params[:id])
+    render_error(message: "Artist not found", status: :not_found) and return unless @artist
   end
 
   def artist_params

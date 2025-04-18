@@ -1,3 +1,4 @@
+import { Genre } from '@/interface/song';
 import { Gender, Role } from '@/interface/user';
 
 /**
@@ -84,9 +85,25 @@ export function mapRoleToValue(role: Role) {
 }
 
 /**
+ * Map Song Genre to their values
+ *
+ */
+export function mapGenreToValue(genre: Genre) {
+  const genreMap = {
+    [Genre.CLASSIC]: 'Classic',
+    [Genre.COUNTRY]: 'Country',
+    [Genre.JAZZ]: 'Jazz',
+    [Genre.RNB]: 'RNB',
+    [Genre.ROCK]: 'Rock',
+  };
+
+  return genreMap[genre];
+}
+
+/**
  * Get full name of user
  *
  */
 export function getFullName(firstName: string, lastName: string) {
-  return firstName + lastName;
+  return firstName + ' ' + lastName;
 }

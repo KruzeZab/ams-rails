@@ -4,13 +4,11 @@ import { ref } from 'vue';
 import { useToast } from 'primevue';
 import type { FormSubmitEvent } from '@primevue/forms';
 
-import { LOGIN_PATH } from '@/constants/routes';
-
 import { Gender, Role, type SignupValues } from '@/interface/user';
 
 import { signupSchema } from '@/schemas/userSchema';
 
-import { signup } from '@/utils/fetch';
+import { createUser } from '@/utils/fetch';
 import { getErrorMessage } from '@/utils/error';
 import { errorToast, successToast } from '@/utils/toast';
 
@@ -25,7 +23,7 @@ const initialValues = ref<SignupValues>({
   phone: '',
   address: '',
   gender: Gender.MALE,
-  role: Role.SUPER_ADMIN,
+  role: Role.ARTIST_MANAGER,
 });
 
 const onFormSubmit = async (e: FormSubmitEvent) => {
@@ -36,28 +34,27 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
   const { values, reset } = e;
 
   try {
-    await signup(values);
+    await createUser(values);
 
     // reset the form
     reset();
 
-    successToast(toast, 'Signup success', 'You have successfully signed up');
+    successToast(toast, 'User added', 'User has been added');
   } catch (error) {
     const errorMsg = getErrorMessage(error);
-
-    errorToast(toast, 'Signup Failed', errorMsg);
+    errorToast(toast, 'Failed to add user.', errorMsg);
   }
 };
 </script>
 
 <template>
-  <div class="mt-12 flex items-center justify-center px-4 mb-8">
+  <div class="mt-12 flex items-center justify-center px-4">
     <div class="w-full max-w-2xl rounded-2xl p-8 border border-green-400">
       <!-- Header -->
       <div class="text-center mb-4">
-        <h2 class="text-3xl font-semibold">Create an Account</h2>
+        <h2 class="text-3xl font-semibold">Add User</h2>
         <p class="text-gray-300 mt-2 text-sm">
-          Sign up to get started with our platform.
+          Add a new user to our platform.
         </p>
       </div>
 
@@ -65,16 +62,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
         :onFormSubmit="onFormSubmit"
         :resolver="signupSchema"
         :initialValues="initialValues"
-        hideRole
       />
-
-      <!-- Footer -->
-      <div class="text-center mt-6 text-sm text-gray-300">
-        Already have an account?
-        <RouterLink :to="LOGIN_PATH" class="text-blue-600 hover:underline"
-          >Log in</RouterLink
-        >
-      </div>
     </div>
   </div>
 </template>

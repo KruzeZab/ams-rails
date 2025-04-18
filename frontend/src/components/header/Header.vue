@@ -1,30 +1,66 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
-import { RouterLink } from 'vue-router';
+import { useToast } from 'primevue';
+import { RouterLink, useRouter } from 'vue-router';
 
 import {
-  HOME_PATH,
+  PROFILE_PATH,
   USERS_PATH,
   ARTISTS_PATH,
   LOGIN_PATH,
   SIGNUP_PATH,
+  SONGS_PATH,
 } from '@/constants/routes';
 
-const items = ref([
-  {
-    label: 'Home',
-    to: HOME_PATH,
-  },
-  {
-    label: 'Users',
-    to: USERS_PATH,
-  },
-  {
-    label: 'Artists',
-    to: ARTISTS_PATH,
-  },
-]);
+import type { HeaderItem } from '@/interface/common';
+
+import { logout, useCurrentUser } from '@/injectors/currentUser';
+import { successToast } from '@/utils/toast';
+import { interpolate } from '@/utils/string';
+import { isArtist, isArtistManager, isSuperAdmin } from '@/utils/user';
+
+const toast = useToast();
+const router = useRouter();
+
+const items = ref<HeaderItem[]>([]);
+
+const currentUser = useCurrentUser();
+
+const buildMenuItems = () => {
+  const role = currentUser.value?.role;
+
+  items.value = [];
+
+  if (currentUser.value) {
+    // Always show Home if user is logged in
+
+    if (isSuperAdmin(role)) {
+      items.value.push(
+        { label: 'Users', to: USERS_PATH },
+        { label: 'Artists', to: ARTISTS_PATH },
+      );
+    } else if (isArtistManager(role)) {
+      items.value.push({ label: 'Artists', to: ARTISTS_PATH });
+    } else if (isArtist(role) && currentUser.value.artistId) {
+      items.value.push({
+        label: 'My songs',
+        to: interpolate(SONGS_PATH, {
+          artistId: currentUser.value.artistId,
+        }),
+      });
+    }
+    items.value.push({ label: 'Dashboard', to: PROFILE_PATH });
+  }
+};
+
+const handleLogout = () => {
+  logout();
+  router.push(LOGIN_PATH);
+  successToast(toast, 'Logout', 'You are now logged out!');
+};
+
+watch(() => currentUser.value, buildMenuItems, { immediate: true });
 </script>
 
 <template>
@@ -56,7 +92,7 @@ const items = ref([
       </template>
 
       <template #end>
-        <div class="flex items-center gap-2">
+        <div v-if="!currentUser" class="flex items-center gap-2">
           <Button
             :as="RouterLink"
             :to="LOGIN_PATH"
@@ -70,6 +106,18 @@ const items = ref([
             label="Signup"
             severity="contrast"
             size="small"
+          />
+        </div>
+        <div v-else class="flex items-center gap-8">
+          <div>
+            Welcome
+            <span class="text-green-500">{{ currentUser.fullName }}</span>
+          </div>
+          <Button
+            label="Logout"
+            severity="contrast"
+            size="small"
+            @click="handleLogout"
           />
         </div>
       </template>
