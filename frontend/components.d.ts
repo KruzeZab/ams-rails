@@ -21,6 +21,8 @@ declare module 'vue' {
     Dropdown: typeof import('primevue/dropdown')['default']
     EditSongModal: typeof import('./src/components/modal/EditSongModal.vue')['default']
     EditUserModal: typeof import('./src/components/modal/EditUserModal.vue')['default']
+    EmptyTable: typeof import('./src/components/table/EmptyTable.vue')['default']
+    FileUpload: typeof import('primevue/fileupload')['default']
     Footer: typeof import('./src/components/footer/Footer.vue')['default']
     Form: typeof import('@primevue/forms/form')['default']
     FormField: typeof import('@primevue/forms/formfield')['default']

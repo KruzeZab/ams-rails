@@ -1,32 +1,37 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue';
+import {
+  useToast,
+  type DataTablePageEvent,
+  type FileUploadUploaderEvent,
+} from 'primevue';
 import { RouterLink, useRoute, useRouter } from 'vue-router';
-import { useToast, type DataTablePageEvent } from 'primevue';
 
 import type { Meta } from '@/interface/common';
 import { Role, type ArtistResponse } from '@/interface/user';
 
-import { errorToast } from '@/utils/toast';
-import { fetchArtists } from '@/utils/fetch';
+import { errorToast, successToast } from '@/utils/toast';
+import { downloadArtist, fetchArtists, uploadArtist } from '@/utils/fetch';
 import { getFullName, interpolate, mapGenderToValue } from '@/utils/string';
+
+import { formatDate } from '@/utils/date';
+import { isSuperAdmin } from '@/utils/user';
+import { getErrorMessage } from '@/utils/error';
 
 import {
   DEFAULT_LIMIT,
   DEFAULT_META,
   DEFAULT_PAGE_START,
 } from '@/constants/pagination';
-
-import { formatDate } from '@/utils/date';
-import { getErrorMessage } from '@/utils/error';
-
 import { SONGS_PATH } from '@/constants/routes';
+import { MAX_FILE_SIZE } from '@/constants/common';
 
 import { useCurrentUser } from '@/injectors/currentUser';
 
 import AddUserModal from '@/components/modal/AddUserModal.vue';
 import EditUserModal from '@/components/modal/EditUserModal.vue';
 import DeleteUserModal from '@/components/modal/DeleteUserModal.vue';
-import { isSuperAdmin } from '@/utils/user';
+import EmptyTable from '@/components/table/EmptyTable.vue';
 
 interface ArtistsState {
   isLoading: boolean;
@@ -69,6 +74,45 @@ const state = reactive<ArtistsState>({
     currentPage: Number(route.query.page) || DEFAULT_PAGE_START,
   },
 });
+
+const fileUploadHandler = async (event: FileUploadUploaderEvent) => {
+  const files = event.files;
+  const file = Array.isArray(files) ? files[0] : files;
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const response = await uploadArtist(formData);
+
+    successToast(toast, 'Artists Imported', response.message);
+  } catch (error) {
+    const errorMsg = getErrorMessage(error);
+
+    errorToast(toast, 'Failed to import artists', errorMsg);
+  }
+};
+
+const fileDownloadHandler = async () => {
+  try {
+    const data = await downloadArtist();
+
+    const blob = new Blob([data], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+
+    link.download = `artists_${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (error) {
+    const errorMsg = getErrorMessage(error);
+
+    errorToast(toast, 'Error downloading file.', errorMsg);
+  }
+};
 
 const loadArtists = async () => {
   try {
@@ -124,6 +168,23 @@ onMounted(async () => {
               size="small"
               @click="openModal('add')"
             />
+            <FileUpload
+              mode="basic"
+              name="artists[]"
+              :customUpload="true"
+              @uploader="fileUploadHandler"
+              accept=".csv"
+              :maxFileSize="MAX_FILE_SIZE"
+              :auto="true"
+              chooseLabel="Import"
+            />
+            <Button
+              label="Export"
+              severity="contrast"
+              icon="pi pi-arrow-down"
+              size="small"
+              @click="fileDownloadHandler"
+            />
           </div></div
       ></template>
     </Card>
@@ -139,6 +200,9 @@ onMounted(async () => {
         :loading="state.isLoading"
         @page="onPageChange"
       >
+        <template #empty>
+          <EmptyTable />
+        </template>
         <Column header="SN">
           <template #body="slotProps">
             {{ slotProps.index + 1 }}

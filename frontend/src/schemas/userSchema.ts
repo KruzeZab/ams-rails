@@ -37,6 +37,7 @@ const userSchema = z.object({
 });
 
 const artistRefinement = (data: ArtistZodInput, ctx: z.RefinementCtx) => {
+  console.log(data.role);
   if (isArtist(data.role)) {
     if (!data.numberOfAlbumsReleased || data.numberOfAlbumsReleased < 0) {
       ctx.addIssue({

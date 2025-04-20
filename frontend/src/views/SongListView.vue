@@ -175,6 +175,9 @@ onMounted(() => {
         :loading="state.isLoading"
         @page="onPageChange"
       >
+        <template #empty>
+          <EmptyTable />
+        </template>
         <Column header="SN">
           <template #body="slotProps">
             {{ slotProps.index + 1 }}

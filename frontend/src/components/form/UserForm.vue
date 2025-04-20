@@ -8,6 +8,8 @@ import { GENDER_OPTIONS, ROLE_OPTIONS } from '@/constants/options';
 
 import InputLabel from '@/components/form/InputLabel.vue';
 import { zodResolver } from '@primevue/forms/resolvers/zod';
+import { useCurrentUser } from '@/injectors/currentUser';
+import { isSuperAdmin } from '@/utils/user';
 
 export interface UserFormProps {
   initialValues: Record<string, string | number | null>;
@@ -21,6 +23,8 @@ export interface UserFormProps {
 const props = defineProps<UserFormProps>();
 
 const formRef = ref();
+
+const currentUser = useCurrentUser();
 
 defineExpose({
   setFormValues: (values: EditUserValues) => {
@@ -180,7 +184,14 @@ defineExpose({
     </div>
 
     <!-- Role -->
-    <div :class="['flex', 'flex-col', 'gap-1', hideRole ? 'hidden' : '']">
+    <div
+      :class="[
+        'flex',
+        'flex-col',
+        'gap-1',
+        isSuperAdmin(currentUser?.role) ? '' : 'hidden',
+      ]"
+    >
       <InputLabel class="text-gray-400">Role</InputLabel>
       <Select
         name="role"
@@ -202,7 +213,7 @@ defineExpose({
 
     <div :class="{ hidden: $form.role?.value !== Role.ARTIST }" v>
       <Divider />
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gra-4">
         <!-- Albums Released -->
         <div class="flex flex-col gap-1">
           <InputLabel class="text-gray-400">Albums Released</InputLabel>

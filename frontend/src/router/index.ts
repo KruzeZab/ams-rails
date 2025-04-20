@@ -46,7 +46,7 @@ const router = createRouter({
       component: UserListView,
       meta: {
         requiresAuth: true,
-        roles: [Role.SUPER_ADMIN, Role.ARTIST_MANAGER],
+        roles: [Role.SUPER_ADMIN],
       },
     },
     {

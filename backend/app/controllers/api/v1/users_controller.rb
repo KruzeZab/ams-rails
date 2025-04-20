@@ -54,12 +54,34 @@ class Api::V1::UsersController < ApplicationController
 
   def update
     authorize @user
-    if @user.update(user_params)
-      render_success(message: "User updated successfully", data: UserSerializer.new(@user))
-    else
-      render_error(message: "User update failed", errors: @user.errors.full_messages)
+  
+    ActiveRecord::Base.transaction do
+      if @user.update(user_params)
+        if artist_params.present?
+          if @user.artist.present?
+            @user.artist.update!(artist_params)
+          else
+            @user.create_artist!(artist_params)
+          end
+        elsif @user.artist.present?
+          @user.artist.destroy!
+        end
+  
+        render_success(
+          message: "User updated successfully",
+          data: UserSerializer.new(@user)
+        )
+      else
+        raise ActiveRecord::Rollback, "User update failed"
+      end
     end
+  
+  rescue ActiveRecord::Rollback => e
+    render_error(message: "User update failed", errors: [e.message])
+  rescue ActiveRecord::RecordInvalid => e
+    render_error(message: "Update failed", errors: e.record.errors.full_messages)
   end
+  
 
   def destroy
     authorize @user

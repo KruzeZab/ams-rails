@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 
 import { useToast } from 'primevue';
+import { useRouter } from 'vue-router';
 import type { FormSubmitEvent } from '@primevue/forms';
 
 import { LOGIN_PATH } from '@/constants/routes';
@@ -15,6 +16,8 @@ import { getErrorMessage } from '@/utils/error';
 import { errorToast, successToast } from '@/utils/toast';
 
 const toast = useToast();
+
+const router = useRouter();
 
 const initialValues = ref<SignupValues>({
   firstName: '',
@@ -42,6 +45,8 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
     reset();
 
     successToast(toast, 'Signup success', 'You have successfully signed up');
+
+    router.push(LOGIN_PATH);
   } catch (error) {
     const errorMsg = getErrorMessage(error);
 

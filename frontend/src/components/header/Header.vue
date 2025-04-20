@@ -15,10 +15,11 @@ import {
 
 import type { HeaderItem } from '@/interface/common';
 
-import { logout, useCurrentUser } from '@/injectors/currentUser';
 import { successToast } from '@/utils/toast';
 import { interpolate } from '@/utils/string';
 import { isArtist, isArtistManager, isSuperAdmin } from '@/utils/user';
+
+import { logout, useCurrentUser } from '@/injectors/currentUser';
 
 const toast = useToast();
 const router = useRouter();
@@ -32,26 +33,27 @@ const buildMenuItems = () => {
 
   items.value = [];
 
-  if (currentUser.value) {
-    // Always show Home if user is logged in
-
-    if (isSuperAdmin(role)) {
-      items.value.push(
-        { label: 'Users', to: USERS_PATH },
-        { label: 'Artists', to: ARTISTS_PATH },
-      );
-    } else if (isArtistManager(role)) {
-      items.value.push({ label: 'Artists', to: ARTISTS_PATH });
-    } else if (isArtist(role) && currentUser.value.artistId) {
-      items.value.push({
-        label: 'My songs',
-        to: interpolate(SONGS_PATH, {
-          artistId: currentUser.value.artistId,
-        }),
-      });
-    }
-    items.value.push({ label: 'Dashboard', to: PROFILE_PATH });
+  if (!currentUser.value) {
+    return;
   }
+
+  if (isSuperAdmin(role)) {
+    items.value.push(
+      { label: 'Users', to: USERS_PATH },
+      { label: 'Artists', to: ARTISTS_PATH },
+    );
+  } else if (isArtistManager(role)) {
+    items.value.push({ label: 'Artists', to: ARTISTS_PATH });
+  } else if (isArtist(role) && currentUser.value.artistId) {
+    items.value.push({
+      label: 'My songs',
+      to: interpolate(SONGS_PATH, {
+        artistId: currentUser.value.artistId,
+      }),
+    });
+  }
+
+  items.value.push({ label: 'Dashboard', to: PROFILE_PATH });
 };
 
 const handleLogout = () => {

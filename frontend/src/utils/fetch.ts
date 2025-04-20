@@ -131,6 +131,22 @@ export async function fetchArtists(params = {}) {
 }
 
 /**
+ * Bulk upload artist
+ *
+ */
+export async function uploadArtist(body = {}) {
+  const uploadUrl = buildUrl(config.endpoints.artistUpload);
+
+  const { data } = await server.post(uploadUrl, body, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return data;
+}
+
+/**
  * Fetch songs
  *
  */
@@ -192,6 +208,21 @@ export async function deleteSong(songId: number) {
   );
 
   const { data } = await server.delete(deleteSongUrl);
+
+  return data;
+}
+
+/**
+ * Bulk upload artist
+ *
+ */
+export async function downloadArtist(params = {}) {
+  const downloadUrl = buildUrl(config.endpoints.artistDownload);
+
+  const { data } = await server.get(downloadUrl, {
+    params,
+    responseType: 'blob',
+  });
 
   return data;
 }

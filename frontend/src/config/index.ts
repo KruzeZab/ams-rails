@@ -10,6 +10,8 @@ const config = {
     artist: '/artists/:artistId',
     songs: '/musics',
     songDetail: '/musics/:songId',
+    artistUpload: '/artists/upload',
+    artistDownload: '/artists/download',
   },
 };
 

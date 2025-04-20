@@ -5,7 +5,7 @@ import type { FormSubmitEvent } from '@primevue/forms';
 
 import { updateUserSchema } from '@/schemas/userSchema';
 
-import { Gender, type EditUserValues } from '@/interface/user';
+import { Gender, Role, type EditUserValues } from '@/interface/user';
 
 import { isArtist } from '@/utils/user';
 import { getErrorMessage } from '@/utils/error';
@@ -33,8 +33,10 @@ const initialValues = ref<EditUserValues>({
   phone: '',
   address: '',
   gender: Gender.MALE,
-  numberOfAlbumsReleased: null,
-  firstReleaseYear: null,
+  ...(isArtist(userRole.value as Role) && {
+    numberOfAlbumsReleased: null,
+    firstReleaseYear: null,
+  }),
 });
 
 const props = defineProps<EditUserModalProps>();
@@ -47,10 +49,22 @@ const userFormRef = ref();
 
 const onFormSubmit = async (e: FormSubmitEvent) => {
   if (!e.valid || !props.selectedUserId) {
+    console.log(e);
     return;
   }
+
+  const payload = {
+    ...e.values,
+    artist: isArtist(e.values.role)
+      ? {
+          numberOfAlbumsReleased: e.values.numberOfAlbumsReleased,
+          firstReleaseYear: e.values.firstReleaseYear,
+        }
+      : undefined,
+  };
+
   try {
-    await updateUser(props.selectedUserId, e.values);
+    await updateUser(props.selectedUserId, payload);
 
     successToast(toast, 'Update Success', 'User has been updated');
 
@@ -84,8 +98,8 @@ watch(
       gender: data.gender,
       role: data.role,
       ...(isArtist(data.role) && {
-        numberOfAlbumsReleased: data.artist.numberOfAlbumsReleased,
-        firstReleaseYear: data.artist.firstReleaseYear,
+        numberOfAlbumsReleased: data.artist?.numberOfAlbumsReleased,
+        firstReleaseYear: data.artist?.firstReleaseYear,
       }),
     };
 

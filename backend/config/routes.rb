@@ -2,7 +2,12 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :users, only: [ :create, :index, :show, :update, :destroy ]
-      resources :artists, only: [:create, :index, :show, :update]
+      resources :artists, only: [:index, :show] do
+        collection do
+          post :upload
+          get :download
+        end
+      end
       resources :musics, only: [:index, :create, :show, :update, :destroy]
 
       post 'register', to: 'users#create_super_admin'

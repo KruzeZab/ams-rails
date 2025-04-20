@@ -28,8 +28,11 @@ class UserPolicy < ApplicationPolicy
   end
   
   def update?
-    user.super_admin? || user == record
+    user.super_admin? ||
+      user == record ||
+      (record.artist? && user.artist_manager?)
   end
+  
 
   def destroy?
     return false if user.id == record.id
