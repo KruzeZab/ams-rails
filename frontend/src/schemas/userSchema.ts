@@ -1,7 +1,8 @@
 import * as z from 'zod';
 
-import { Role, type ArtistZodInput } from '@/interface/user';
 import { isArtist } from '@/utils/user';
+
+import { Role, type ArtistZodInput } from '@/interface/user';
 
 export const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -22,16 +23,23 @@ const userSchema = z.object({
   address: z.string().nonempty({ message: 'Address is required' }),
   dob: z.string().refine(
     (val) => {
-      const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
-      if (!dateRegex.test(val)) {
-        return false;
-      }
-
       const date = new Date(val);
-      return !isNaN(date.getTime());
+      if (isNaN(date.getTime())) return false;
+
+      const today = new Date();
+      const ageDiff = today.getFullYear() - date.getFullYear();
+      const monthDiff = today.getMonth() - date.getMonth();
+      const dayDiff = today.getDate() - date.getDate();
+
+      const is18OrOlder =
+        ageDiff > 18 ||
+        (ageDiff === 18 &&
+          (monthDiff > 0 || (monthDiff === 0 && dayDiff >= 0)));
+
+      return is18OrOlder;
     },
     {
-      message: 'Invalid DOB',
+      message: 'Must be at least 18 years old',
     },
   ),
 });
@@ -42,7 +50,7 @@ const artistRefinement = (data: ArtistZodInput, ctx: z.RefinementCtx) => {
     if (!data.numberOfAlbumsReleased || data.numberOfAlbumsReleased < 0) {
       ctx.addIssue({
         path: ['numberOfAlbumsReleased'],
-        message: 'Must be greater than or equal to 0',
+        message: 'Invalid number',
         code: z.ZodIssueCode.custom,
       });
     }

@@ -16,6 +16,8 @@ class User < ApplicationRecord
   validates :phone, presence: true,
                     format: { with: /\A\d{10,}\z/, message: "must be a valid number with at least 10 digits" }
 
+  validate :must_be_at_least_18_years_old
+
   def super_admin?
     role == ROLES[:SUPER_ADMIN]
   end
@@ -26,5 +28,13 @@ class User < ApplicationRecord
 
   def artist?
     role === ROLES[:ARTIST]
+  end
+
+  def must_be_at_least_18_years_old
+    return if dob.blank?
+
+    if dob > 18.years.ago.to_date
+      errors.add(:dob, "must be at least 18 years old")
+    end
   end
 end
