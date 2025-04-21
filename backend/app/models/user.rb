@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  include Trackable
+  
   has_secure_password
 
   has_one :artist, dependent: :destroy

@@ -65,7 +65,6 @@ class Api::V1::ArtistsController < ApplicationController
       render_success(message: "#{artists_data.size} artists successfully imported")
   
     rescue => e
-      puts e.inspect
       render_error(message: 'Invalid CSV data', status: :unprocessable_entity)
     end
   end

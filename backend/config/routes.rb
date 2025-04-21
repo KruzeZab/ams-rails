@@ -16,6 +16,8 @@ Rails.application.routes.draw do
 
       resources :musics, only: [:index, :create, :show, :update, :destroy]
 
+      resources :activity_logs, only: [:index], path: "activity-logs"
+
       post 'register', to: 'users#create_super_admin'
 
       post "login", to: "sessions#create"

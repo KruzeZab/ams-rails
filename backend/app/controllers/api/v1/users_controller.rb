@@ -5,6 +5,8 @@ class Api::V1::UsersController < ApplicationController
   def create
     user = User.new(user_params)
     authorize user
+
+    user.current_user = current_user
   
     ActiveRecord::Base.transaction do
       if user.role == User::ROLES[:ARTIST]
@@ -54,6 +56,8 @@ class Api::V1::UsersController < ApplicationController
 
   def update
     authorize @user
+
+    @user.current_user = current_user
   
     ActiveRecord::Base.transaction do
       if @user.update(user_params)
@@ -85,6 +89,9 @@ class Api::V1::UsersController < ApplicationController
 
   def destroy
     authorize @user
+    
+    @user.current_user = current_user
+
     @user.destroy
     render_success(message: "User deleted successfully", data: {id: @user.id})
   end

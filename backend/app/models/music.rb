@@ -1,4 +1,6 @@
 class Music < ApplicationRecord
+  include Trackable
+  
   belongs_to :artist
   
   GENRES = { classic: 'classic', rock: 'rock', jazz: 'jazz', rnb: 'rnb', country: 'country' }.freeze

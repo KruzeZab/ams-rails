@@ -26,6 +26,8 @@ class Api::V1::MusicsController < ApplicationController
     music = artist.musics.new(music_params)
     authorize music
 
+    music.current_user = current_user
+
     if music.save
       render_success(message: "Music created successfully", data: MusicSerializer.new(music), status: :created)
     else
@@ -50,6 +52,8 @@ class Api::V1::MusicsController < ApplicationController
 
   def set_music
     @music = Music.includes(:artist).find_by(id: params[:id])
+    @music.current_user = current_user
+    
     render_error(message: "Music not found", status: :not_found) unless @music
   end
 

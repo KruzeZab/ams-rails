@@ -47,7 +47,7 @@ defineExpose({
     :initialValues="props.initialValues"
     :validateOnValueUpdate="false"
     :validateOnSubmit="true"
-    :validateOnBlur="['email']"
+    :validateOnBlur="false"
     @submit="props.onFormSubmit"
     class="flex flex-col gap-6"
   >
