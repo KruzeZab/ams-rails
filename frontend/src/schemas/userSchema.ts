@@ -1,8 +1,25 @@
 import * as z from 'zod';
 
 import { isArtist } from '@/utils/user';
+import { checkEmailExists } from '@/utils/fetch';
 
 import { Role, type ArtistZodInput } from '@/interface/user';
+
+const emailRefine = async (data: { email: string }, ctx: z.RefinementCtx) => {
+  try {
+    if (!data.email.trim()) {
+      return;
+    }
+
+    await checkEmailExists({ email: data.email });
+  } catch {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['email'],
+      message: 'This email is already in use',
+    });
+  }
+};
 
 export const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -13,7 +30,7 @@ const userSchema = z.object({
   firstName: z.string().min(2, { message: 'Must be at least 2 characters.' }),
   lastName: z.string().min(2, { message: 'Must be at least 2 characters.' }),
   email: z.string().email({ message: 'Invalid email address.' }),
-  phone: z.string().refine((val) => /^\+?\d+$/.test(val), {
+  phone: z.string().refine((val) => /^\d{10}$/.test(val), {
     message: 'Invalid phone number.',
   }),
   gender: z
@@ -45,7 +62,6 @@ const userSchema = z.object({
 });
 
 const artistRefinement = (data: ArtistZodInput, ctx: z.RefinementCtx) => {
-  console.log(data.role);
   if (isArtist(data.role)) {
     if (!data.numberOfAlbumsReleased || data.numberOfAlbumsReleased < 0) {
       ctx.addIssue({
@@ -100,11 +116,12 @@ export const signupSchema = userSchema
       })
       .optional(),
   })
-  .superRefine(artistRefinement);
+  .superRefine(artistRefinement)
+  .superRefine(emailRefine);
 
 export const updateUserSchema = userSchema
   .extend({
-    role: z.enum([Role.ARTIST_MANAGER, Role.ARTIST], {
+    role: z.enum([Role.SUPER_ADMIN, Role.ARTIST_MANAGER, Role.ARTIST], {
       required_error: 'Role is required',
       invalid_type_error: 'Invalid role',
     }),

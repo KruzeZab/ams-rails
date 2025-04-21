@@ -1,6 +1,6 @@
 class Api::V1::UsersController < ApplicationController
   before_action :set_user, only: [:show, :update, :destroy]
-  skip_before_action :authorize_request, only: [:create_super_admin]
+  skip_before_action :authorize_request, only: [:create_super_admin, :check_email]
   
   def create
     user = User.new(user_params)
@@ -22,7 +22,7 @@ class Api::V1::UsersController < ApplicationController
         raise ActiveRecord::Rollback
       end
     rescue
-      render_error(message: "User creation failed", errors: user.errors.full_messages)
+      render_error(message: "User creation failed", errors: formatted_errors(user.errors))
     end
   end
 
@@ -32,7 +32,7 @@ class Api::V1::UsersController < ApplicationController
     if user.save
       render_success(message: 'User created successfully', data: UserSerializer.new(user), status: :created)
     else
-      render_error(message: "User creation failed", errors: user.errors.full_messages)
+      render_error(message: "User creation failed", errors: formatted_errors(user.errors))
     end
   end
 
@@ -77,9 +77,9 @@ class Api::V1::UsersController < ApplicationController
     end
   
   rescue ActiveRecord::Rollback => e
-    render_error(message: "User update failed", errors: [e.message])
+    render_error(message: "User update failed", errors: formatted_errors(@user.errors))
   rescue ActiveRecord::RecordInvalid => e
-    render_error(message: "Update failed", errors: e.record.errors.full_messages)
+    render_error(message: "Update failed", errors: formatted_errors(e.record.errors))
   end
   
 
@@ -87,6 +87,18 @@ class Api::V1::UsersController < ApplicationController
     authorize @user
     @user.destroy
     render_success(message: "User deleted successfully", data: {id: @user.id})
+  end
+
+  def check_email
+    authorize User
+
+    userExists = User.exists?(email: params[:email])
+
+    if userExists
+      render_error(message: 'Email already exists', errors: [], status: :bad_request)
+    else
+      render_success(message: 'Valid email', data: { exists: false }, status: :ok)
+    end
   end
 
   private

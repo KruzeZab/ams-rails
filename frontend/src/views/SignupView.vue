@@ -12,12 +12,14 @@ import { Gender, Role, type SignupValues } from '@/interface/user';
 import { signupSchema } from '@/schemas/userSchema';
 
 import { signup } from '@/utils/fetch';
-import { getErrorMessage } from '@/utils/error';
 import { errorToast, successToast } from '@/utils/toast';
+import { getBackendErrors, getErrorMessage } from '@/utils/error';
 
 const toast = useToast();
 
 const router = useRouter();
+
+const backendErrors = ref<Record<string, string[]>>({});
 
 const initialValues = ref<SignupValues>({
   firstName: '',
@@ -41,6 +43,8 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
   try {
     await signup(values);
 
+    backendErrors.value = {};
+
     // reset the form
     reset();
 
@@ -48,6 +52,8 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
 
     router.push(LOGIN_PATH);
   } catch (error) {
+    backendErrors.value = getBackendErrors(error);
+
     const errorMsg = getErrorMessage(error);
 
     errorToast(toast, 'Signup Failed', errorMsg);
@@ -71,6 +77,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
         :resolver="signupSchema"
         :initialValues="initialValues"
         hideRole
+        :backendErrors="backendErrors"
       />
 
       <!-- Footer -->

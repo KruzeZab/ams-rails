@@ -8,7 +8,7 @@ import { updateUserSchema } from '@/schemas/userSchema';
 import { Gender, Role, type EditUserValues } from '@/interface/user';
 
 import { isArtist } from '@/utils/user';
-import { getErrorMessage } from '@/utils/error';
+import { getBackendErrors, getErrorMessage } from '@/utils/error';
 import { formatDateForInput } from '@/utils/date';
 import { errorToast, successToast } from '@/utils/toast';
 import { fetchUserDetail, updateUser } from '@/utils/fetch';
@@ -22,6 +22,8 @@ interface EditUserModalProps {
 }
 
 const toast = useToast();
+
+const backendErrors = ref<Record<string, string[]>>({});
 
 const userRole = ref('');
 
@@ -66,12 +68,16 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
   try {
     await updateUser(props.selectedUserId, payload);
 
+    backendErrors.value = {};
+
     successToast(toast, 'Update Success', 'User has been updated');
 
     e.reset();
     emit('updated');
     emit('update:visible', false);
   } catch (error) {
+    backendErrors.value = getBackendErrors(error);
+
     const errorMsg = getErrorMessage(error);
     errorToast(toast, 'Update Failed', errorMsg);
   }
@@ -127,6 +133,7 @@ watch(
         :resolver="updateUserSchema"
         :onFormSubmit="onFormSubmit"
         :isEdit="true"
+        :backendErrors="backendErrors"
       />
     </Dialog>
   </div>

@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::API
   include Response
+  include ErrorFormat
   include Pagy::Backend
   include Pundit::Authorization
 

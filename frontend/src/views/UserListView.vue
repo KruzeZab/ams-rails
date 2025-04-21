@@ -9,6 +9,7 @@ import type { UserResponse } from '@/interface/user';
 import { formatDate } from '@/utils/date';
 import { fetchUsers } from '@/utils/fetch';
 import { errorToast } from '@/utils/toast';
+import { getErrorMessage } from '@/utils/error';
 import { getFullName, mapGenderToValue, mapRoleToValue } from '@/utils/string';
 
 import {
@@ -17,10 +18,11 @@ import {
   DEFAULT_PAGE_START,
 } from '@/constants/pagination';
 
+import { useCurrentUser } from '@/injectors/currentUser';
+
 import AddUserModal from '@/components/modal/AddUserModal.vue';
 import EditUserModal from '@/components/modal/EditUserModal.vue';
 import DeleteUserModal from '@/components/modal/DeleteUserModal.vue';
-import { getErrorMessage } from '@/utils/error';
 
 interface UsersState {
   isLoading: boolean;
@@ -30,6 +32,8 @@ interface UsersState {
 
 const router = useRouter();
 const route = useRoute();
+
+const currentUser = useCurrentUser();
 
 const toast = useToast();
 
@@ -179,6 +183,7 @@ onMounted(async () => {
                 @click="openModal('edit', slotProps.data.id)"
               />
               <Button
+                v-if="currentUser?.userId !== slotProps.data.id"
                 label="Delete"
                 severity="danger"
                 size="small"

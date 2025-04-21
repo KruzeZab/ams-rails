@@ -28,10 +28,10 @@ import { MAX_FILE_SIZE } from '@/constants/common';
 
 import { useCurrentUser } from '@/injectors/currentUser';
 
+import EmptyTable from '@/components/table/EmptyTable.vue';
 import AddUserModal from '@/components/modal/AddUserModal.vue';
 import EditUserModal from '@/components/modal/EditUserModal.vue';
 import DeleteUserModal from '@/components/modal/DeleteUserModal.vue';
-import EmptyTable from '@/components/table/EmptyTable.vue';
 
 interface ArtistsState {
   isLoading: boolean;
@@ -46,6 +46,7 @@ const toast = useToast();
 
 const currentUser = useCurrentUser();
 
+const isFileUploading = ref<boolean>(false);
 const selectedUserId = ref<number | null>(null);
 
 const isModalVisible = reactive({
@@ -83,13 +84,18 @@ const fileUploadHandler = async (event: FileUploadUploaderEvent) => {
   formData.append('file', file);
 
   try {
+    isFileUploading.value = true;
     const response = await uploadArtist(formData);
+
+    loadArtists();
 
     successToast(toast, 'Artists Imported', response.message);
   } catch (error) {
     const errorMsg = getErrorMessage(error);
 
     errorToast(toast, 'Failed to import artists', errorMsg);
+  } finally {
+    isFileUploading.value = false;
   }
 };
 
@@ -157,6 +163,12 @@ onMounted(async () => {
 
 <template>
   <div class="mt-8 mx-16">
+    <div
+      v-if="isFileUploading"
+      class="mb-4 text-lg bg-green-950 p-2 border rounded border-green-800"
+    >
+      Please wait while the file is being uploaded...
+    </div>
     <Card class="mb-4">
       <template #title>
         <div class="flex justify-between items-center gap-2">
@@ -192,7 +204,7 @@ onMounted(async () => {
       <DataTable
         :value="state.artists"
         :lazy="true"
-        :paginator="!!state.artists.length"
+        :paginator="true"
         :totalRecords="state.meta.totalCount"
         :first="(state.meta.currentPage - 1) * DEFAULT_LIMIT"
         :rows="DEFAULT_LIMIT"

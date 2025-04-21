@@ -39,4 +39,8 @@ class UserPolicy < ApplicationPolicy
   
     user.super_admin? || (user.artist_manager? && record.artist?)
   end
+
+  def check_email?
+    return true
+  end
 end

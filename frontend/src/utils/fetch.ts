@@ -226,3 +226,15 @@ export async function downloadArtist(params = {}) {
 
   return data;
 }
+
+/**
+ * Check if email exists
+ *
+ */
+export async function checkEmailExists(params = {}) {
+  const emailCheckUrl = buildUrl(config.endpoints.checkEmail);
+
+  const { data } = await server.get(emailCheckUrl, { params });
+
+  return data;
+}

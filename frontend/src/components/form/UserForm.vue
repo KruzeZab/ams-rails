@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import type { FormSubmitEvent } from '@primevue/forms';
+import { zodResolver } from '@primevue/forms/resolvers/zod';
 
 import { Role, type EditUserValues } from '@/interface/user';
 
 import { GENDER_OPTIONS, ROLE_OPTIONS } from '@/constants/options';
 
-import InputLabel from '@/components/form/InputLabel.vue';
-import { zodResolver } from '@primevue/forms/resolvers/zod';
-import { useCurrentUser } from '@/injectors/currentUser';
 import { isSuperAdmin } from '@/utils/user';
+
+import { useCurrentUser } from '@/injectors/currentUser';
+
+import InputLabel from '@/components/form/InputLabel.vue';
 
 export interface UserFormProps {
   initialValues: Record<string, string | number | null>;
@@ -18,6 +20,7 @@ export interface UserFormProps {
   resolver: any;
   isEdit?: boolean;
   hideRole?: boolean;
+  backendErrors: Record<string, string[]>;
 }
 
 const props = defineProps<UserFormProps>();
@@ -44,6 +47,7 @@ defineExpose({
     :initialValues="props.initialValues"
     :validateOnValueUpdate="false"
     :validateOnSubmit="true"
+    :validateOnBlur="['email']"
     @submit="props.onFormSubmit"
     class="flex flex-col gap-6"
   >
@@ -59,12 +63,12 @@ defineExpose({
           fluid
         />
         <Message
-          v-if="$form.firstName?.invalid"
+          v-if="$form.firstName?.invalid || !!backendErrors.firstName"
           severity="error"
           size="small"
           variant="simple"
         >
-          {{ $form.firstName.error.message }}
+          {{ $form.firstName?.error?.message || backendErrors.firstName[0] }}
         </Message>
       </div>
       <!-- Last Name -->
@@ -72,12 +76,12 @@ defineExpose({
         <InputLabel class="text-gray-400">Last Name</InputLabel>
         <InputText name="lastName" type="text" placeholder="Last Name" fluid />
         <Message
-          v-if="$form.lastName?.invalid"
+          v-if="$form.lastName?.invalid || !!backendErrors.lastName"
           severity="error"
           size="small"
           variant="simple"
         >
-          {{ $form.lastName.error.message }}
+          {{ $form.lastName?.error?.message || backendErrors.lastName[0] }}
         </Message>
       </div>
     </div>
@@ -95,14 +99,14 @@ defineExpose({
           optionValue="value"
           fluid
         />
-
         <Message
-          v-if="$form.gender?.invalid"
+          v-if="$form.gender?.invalid || !!backendErrors.gender"
           severity="error"
           size="small"
           variant="simple"
-          >{{ $form.gender?.error?.message }}</Message
         >
+          {{ $form.gender?.error?.message || backendErrors.gender[0] }}
+        </Message>
       </div>
 
       <!-- Date of Birth -->
@@ -110,12 +114,12 @@ defineExpose({
         <InputLabel class="text-gray-400">Date of Birth</InputLabel>
         <InputText name="dob" type="date" placeholder="Date of Birth" fluid />
         <Message
-          v-if="$form.dob?.invalid"
+          v-if="$form.dob?.invalid || !!backendErrors.dob"
           severity="error"
           size="small"
           variant="simple"
         >
-          {{ $form.dob.error.message }}
+          {{ $form.dob?.error?.message || backendErrors.dob[0] }}
         </Message>
       </div>
     </div>
@@ -125,12 +129,12 @@ defineExpose({
       <InputLabel class="text-gray-400">Email</InputLabel>
       <InputText name="email" type="text" placeholder="Email Address" fluid />
       <Message
-        v-if="$form.email?.invalid"
+        v-if="$form.email?.invalid || !!backendErrors.email"
         severity="error"
         size="small"
         variant="simple"
       >
-        {{ $form.email.error.message }}
+        {{ $form.email?.error?.message || backendErrors.email[0] }}
       </Message>
     </div>
 
@@ -138,13 +142,14 @@ defineExpose({
     <div class="flex flex-col gap-1">
       <InputLabel class="text-gray-400">Address</InputLabel>
       <InputText name="address" type="text" placeholder="Address" fluid />
+
       <Message
-        v-if="$form.address?.invalid"
+        v-if="$form.address?.invalid || !!backendErrors.address"
         severity="error"
         size="small"
         variant="simple"
       >
-        {{ $form.address.error.message }}
+        {{ $form.address?.error?.message || backendErrors.address[0] }}
       </Message>
     </div>
 
@@ -153,12 +158,12 @@ defineExpose({
       <InputLabel class="text-gray-400">Phone Number</InputLabel>
       <InputText name="phone" type="text" placeholder="Phone Number" fluid />
       <Message
-        v-if="$form.phone?.invalid"
+        v-if="$form.phone?.invalid || !!backendErrors.phone"
         severity="error"
         size="small"
         variant="simple"
       >
-        {{ $form.phone.error.message }}
+        {{ $form.phone?.error?.message || backendErrors.phone[0] }}
       </Message>
     </div>
 
@@ -174,12 +179,12 @@ defineExpose({
         fluid
       />
       <Message
-        v-if="$form.password?.invalid"
+        v-if="$form.password?.invalid || !!backendErrors.password"
         severity="error"
         size="small"
         variant="simple"
       >
-        {{ $form.password.error.message }}
+        {{ $form.password?.error?.message || backendErrors.password[0] }}
       </Message>
     </div>
 
@@ -189,7 +194,11 @@ defineExpose({
         'flex',
         'flex-col',
         'gap-1',
-        isSuperAdmin(currentUser?.role) ? '' : 'hidden',
+        isSuperAdmin($form.role?.value)
+          ? 'hidden'
+          : isSuperAdmin(currentUser?.role)
+            ? ''
+            : 'hidden',
       ]"
     >
       <InputLabel class="text-gray-400">Role</InputLabel>
@@ -203,12 +212,13 @@ defineExpose({
       />
 
       <Message
-        v-if="$form.role?.invalid"
+        v-if="$form.password?.invalid || !!backendErrors.password"
         severity="error"
         size="small"
         variant="simple"
-        >{{ $form.role?.error?.message }}</Message
       >
+        {{ $form.password?.error?.message || backendErrors.password[0] }}
+      </Message>
     </div>
 
     <div :class="{ hidden: $form.role?.value !== Role.ARTIST }" v>
@@ -224,12 +234,18 @@ defineExpose({
             fluid
           />
           <Message
-            v-if="$form.numberOfAlbumsReleased?.invalid"
+            v-if="
+              $form.numberOfAlbumsReleased?.invalid ||
+              !!backendErrors.numberOfAlbumsReleased
+            "
             severity="error"
             size="small"
             variant="simple"
           >
-            {{ $form.numberOfAlbumsReleased.error.message }}
+            {{
+              $form.numberOfAlbumsReleased?.error?.message ||
+              backendErrors.numberOfAlbumsReleased[0]
+            }}
           </Message>
         </div>
 
@@ -243,12 +259,18 @@ defineExpose({
             fluid
           />
           <Message
-            v-if="$form.firstReleaseYear?.invalid"
+            v-if="
+              $form.firstReleaseyear?.invalid ||
+              !!backendErrors.firstReleaseyear
+            "
             severity="error"
             size="small"
             variant="simple"
           >
-            {{ $form.firstReleaseYear.error.message }}
+            {{
+              $form.firstReleaseyear?.error?.message ||
+              backendErrors.firstReleaseyear[0]
+            }}
           </Message>
         </div>
       </div>

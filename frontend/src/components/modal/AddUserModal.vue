@@ -6,12 +6,12 @@ import type { FormSubmitEvent } from '@primevue/forms';
 
 import { Gender, Role, type SignupValues } from '@/interface/user';
 
+import { isArtist } from '@/utils/user';
 import { createUser } from '@/utils/fetch';
 import { errorToast, successToast } from '@/utils/toast';
+import { getBackendErrors, getErrorMessage } from '@/utils/error';
 
 import { signupSchema } from '@/schemas/userSchema';
-import { getErrorMessage } from '@/utils/error';
-import { isArtist } from '@/utils/user';
 
 interface AddUserModalProps {
   visible: boolean;
@@ -21,6 +21,8 @@ interface AddUserModalProps {
 const toast = useToast();
 
 const props = defineProps<AddUserModalProps>();
+
+const backendErrors = ref<Record<string, string[]>>({});
 
 const initialValues = ref<SignupValues>({
   firstName: '',
@@ -40,9 +42,9 @@ const emit = defineEmits<{
 }>();
 
 const onFormSubmit = async (e: FormSubmitEvent) => {
-  if (!e.valid) {
-    return;
-  }
+  // if (!e.valid) {
+  //   return;
+  // }
 
   const { values, reset } = e;
 
@@ -63,12 +65,16 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
   try {
     await createUser(body);
 
+    backendErrors.value = {};
+
     successToast(toast, 'User Added', 'User has been added');
 
     reset();
     emit('updated');
     emit('update:visible', false);
   } catch (error) {
+    backendErrors.value = getBackendErrors(error);
+
     const errorMsg = getErrorMessage(error);
     errorToast(toast, 'Failed to add user', errorMsg);
   }
@@ -89,6 +95,7 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
         :onFormSubmit="onFormSubmit"
         :resolver="signupSchema"
         :initialValues="initialValues"
+        :backendErrors="backendErrors"
       />
     </Dialog>
   </div>

@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AddSongModal: typeof import('./src/components/modal/AddSongModal.vue')['default']
     AddUserModal: typeof import('./src/components/modal/AddUserModal.vue')['default']
+    BlockUI: typeof import('primevue/blockui')['default']
     Button: typeof import('primevue/button')['default']
     Card: typeof import('primevue/card')['default']
     Column: typeof import('primevue/column')['default']

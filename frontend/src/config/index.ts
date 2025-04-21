@@ -12,6 +12,7 @@ const config = {
     songDetail: '/musics/:songId',
     artistUpload: '/artists/upload',
     artistDownload: '/artists/download',
+    checkEmail: '/users/check-email',
   },
 };
 

@@ -29,7 +29,7 @@ class Api::V1::MusicsController < ApplicationController
     if music.save
       render_success(message: "Music created successfully", data: MusicSerializer.new(music), status: :created)
     else
-      render_error(message: "Music creation failed", errors: music.errors.full_messages)
+      render_error(message: "Music creation failed", errors: formatted_errors(music.errors))
     end
   end
 
@@ -37,10 +37,10 @@ class Api::V1::MusicsController < ApplicationController
     if @music.update(music_params)
       render_success(message: "Music updated successfully", data: MusicSerializer.new(@music))
     else
-      render_error(message: "Music update failed", errors: @music.errors.full_messages)
+      render_error(message: "Music update failed", errors: formatted_errors(@music.errors))
     end
   end
-
+  
   def destroy
     @music.destroy
     render_success(message: "Music deleted successfully", data: { id: @music.id })
