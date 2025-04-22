@@ -7,13 +7,15 @@ import {
   SIGNUP_PATH,
   SONGS_PATH,
   USERS_PATH,
+  ADMIN_PATH,
 } from '@/constants/routes';
 
 import { Role } from '@/interface/user';
 import { currentUser } from '@/injectors/currentUser';
 
-import HomeView from '@/views/ProfileView.vue';
 import LoginView from '@/views/LoginView.vue';
+import AdminView from '@/views/AdminView.vue';
+import HomeView from '@/views/ProfileView.vue';
 import SignupView from '@/views/SignupView.vue';
 import UserListView from '@/views/UserListView.vue';
 import SongListView from '@/views/SongListView.vue';
@@ -63,6 +65,12 @@ const router = createRouter({
       name: 'songs',
       component: SongListView,
       meta: { requiresAuth: true, roles: [Role.SUPER_ADMIN, Role.ARTIST] },
+    },
+    {
+      path: ADMIN_PATH,
+      name: 'admin',
+      component: AdminView,
+      meta: { requireAuth: true, roles: [Role.SUPER_ADMIN] },
     },
   ],
 });

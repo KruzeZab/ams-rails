@@ -238,3 +238,15 @@ export async function checkEmailExists(params = {}) {
 
   return data;
 }
+
+/**
+ * Fetch activity logs
+ *
+ */
+export async function fetchActivityLogs(params = {}) {
+  const logsUrl = buildUrl(config.endpoints.activitLogs);
+
+  const { data } = await server.get(logsUrl, { params });
+
+  return data;
+}

@@ -13,6 +13,7 @@ const config = {
     artistUpload: '/artists/upload',
     artistDownload: '/artists/download',
     checkEmail: '/users/check-email',
+    activitLogs: '/activity-logs',
   },
 };
 
