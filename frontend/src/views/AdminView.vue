@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { onMounted, reactive } from 'vue';
 
+import { formatDate } from '@/utils/date';
 import { fetchActivityLogs } from '@/utils/fetch';
+
+import { ActionLog, type ActivityLog } from '@/interface/log';
 
 interface LogsState {
   isLoading: boolean;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  logs: any;
+  logs: ActivityLog[];
 }
 
 const logsState = reactive<LogsState>({
@@ -23,51 +25,66 @@ onMounted(async () => {
 
 <template>
   <div class="mt-6 container mx-auto">
-    <h2 class="text-2xl font-bold mb-4">Action Alerts</h2>
+    <h2 class="text-2xl font-bold mb-6">Action Alerts</h2>
 
-    <div
-      v-for="log in logsState.logs"
-      :key="log.id"
-      class="mb-4 p-4 border rounded-xl shadow-sm bg-white"
-    >
-      <div class="text-sm text-gray-400 mb-1">
-        {{ new Date(log.createdAt).toLocaleString() }}
-      </div>
+    <Accordion :value="[]">
+      <AccordionPanel
+        v-for="log in logsState.logs"
+        :key="log.id"
+        :value="String(log.id)"
+      >
+        <AccordionHeader class="text-white">
+          <!-- CREATE -->
+          <div
+            v-if="log.action === ActionLog.CREATE"
+            class="flex items-center gap-2"
+          >
+            <span class="w-2 h-2 rounded-full bg-green-500" />
+            <span class="capitalize">{{ log.recordType }}</span> was created by
+            <strong>{{ log.user?.email ?? 'Guest' }}</strong>
+            <Tag severity="success" value="Create" />
+            <i class="text-xs text-gray-500 block">{{
+              formatDate(log.createdAt)
+            }}</i>
+          </div>
 
-      <div v-if="log.action === 'create'">
-        <p class="text-green-700 font-medium">
-          New <span class="capitalize">{{ log.recordType }}</span> created with
-          values:
-          <span v-for="(value, key, idx) in log.changeLog" :key="key">
-            <span class="font-semibold capitalize">{{ key }}</span
-            >: {{ value
-            }}<span v-if="idx < Object.keys(log.changeLog).length - 1">, </span>
-          </span>
-          by {{ log.user ? log.user.email : 'guest' }}.
-        </p>
-      </div>
+          <!-- UPDATE -->
+          <div
+            v-else-if="log.action === ActionLog.UPDATE"
+            class="flex justify-between items-center gap-2"
+          >
+            <span class="w-2 h-2 rounded-full bg-blue-500" />
+            <span class="capitalize">{{ log.recordType }}</span> was updated by
+            <strong>{{ log.user?.email ?? 'Guest' }}</strong>
+            <Tag severity="info" value="Update" />
 
-      <div v-else-if="log.action === 'update'">
-        <p class="text-yellow-700 font-medium">
-          <span class="capitalize">{{ log.recordType }}</span> updated by
-          {{ log.user ? log.user.email : 'guest' }}:
-        </p>
-        <ul class="ml-4 list-disc text-sm text-gray-800">
-          <li v-for="(change, key) in log.changeLog" :key="key">
-            <span class="capitalize font-semibold">{{ key }}</span
-            >: from <span class="text-red-600">{{ change[0] }}</span> to
-            <span class="text-green-600">{{ change[1] }}</span>
-          </li>
-        </ul>
-      </div>
+            <i class="text-xs text-gray-500 block">{{
+              formatDate(log.createdAt)
+            }}</i>
+          </div>
 
-      <div v-else-if="log.action === 'delete'">
-        <p class="text-red-700 font-medium">
-          <span class="capitalize">{{ log.recordType }}</span> with ID
-          {{ log.recordId }} was deleted by
-          {{ log.user ? log.user.email : 'guest' }}.
-        </p>
-      </div>
-    </div>
+          <!-- DELETE -->
+          <div
+            v-else-if="log.action === ActionLog.DELETE"
+            class="flex items-center gap-2"
+          >
+            <span class="w-2 h-2 rounded-full bg-red-500" />
+            <span class="capitalize">{{ log.recordType }}</span> with ID
+            <strong>{{ log.recordId }}</strong> was deleted by
+            <strong>{{ log.user?.email ?? 'Guest' }}</strong>
+            <Tag severity="danger" value="Delete" />
+            <i class="text-xs text-gray-500 block">{{
+              formatDate(log.createdAt)
+            }}</i>
+          </div>
+        </AccordionHeader>
+
+        <AccordionContent>
+          <pre class="text-xs rounded p-3 overflow-auto bg-gray-900"
+            >{{ JSON.stringify(log.changeLog, null, 2) }}
+          </pre>
+        </AccordionContent>
+      </AccordionPanel>
+    </Accordion>
   </div>
 </template>

@@ -8,3 +8,7 @@ export interface HeaderItem {
   label: string;
   to: string;
 }
+
+export type Primitive = string | number | boolean | null;
+
+export type ChangeLogUpdate = Record<string, [Primitive, Primitive]>;

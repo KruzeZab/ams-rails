@@ -23,3 +23,5 @@ export function isArtistManager(role?: Role) {
 export function isArtist(role?: Role) {
   return role === Role.ARTIST;
 }
+
+export function getLoggedUsername() {}

@@ -8,6 +8,10 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    Accordion: typeof import('primevue/accordion')['default']
+    AccordionContent: typeof import('primevue/accordioncontent')['default']
+    AccordionHeader: typeof import('primevue/accordionheader')['default']
+    AccordionPanel: typeof import('primevue/accordionpanel')['default']
     AddSongModal: typeof import('./src/components/modal/AddSongModal.vue')['default']
     AddUserModal: typeof import('./src/components/modal/AddUserModal.vue')['default']
     BlockUI: typeof import('primevue/blockui')['default']
@@ -45,6 +49,7 @@ declare module 'vue' {
     Select: typeof import('primevue/select')['default']
     SignupForm: typeof import('./src/components/form/SignupForm.vue')['default']
     SongForm: typeof import('./src/components/form/SongForm.vue')['default']
+    Tag: typeof import('primevue/tag')['default']
     TheWelcome: typeof import('./src/components/TheWelcome.vue')['default']
     Toast: typeof import('primevue/toast')['default']
     UserForm: typeof import('./src/components/form/UserForm.vue')['default']

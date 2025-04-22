@@ -11,6 +11,7 @@ import {
   LOGIN_PATH,
   SIGNUP_PATH,
   SONGS_PATH,
+  ADMIN_PATH,
 } from '@/constants/routes';
 
 import type { HeaderItem } from '@/interface/common';
@@ -41,6 +42,7 @@ const buildMenuItems = () => {
     items.value.push(
       { label: 'Users', to: USERS_PATH },
       { label: 'Artists', to: ARTISTS_PATH },
+      { label: 'Activity Log', to: ADMIN_PATH },
     );
   } else if (isArtistManager(role)) {
     items.value.push({ label: 'Artists', to: ARTISTS_PATH });
